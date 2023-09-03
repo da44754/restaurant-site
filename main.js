@@ -7,9 +7,7 @@ let phoneInputTouched = false;
 let ageInputTouched = false;
 let passwordInputTouched = false;
 let repasswordInputTouched = false;
-
-
-$(document).ready(function () {
+// $(document).ready(function () {
     //----------------close the side navbar------------------
     function closeNavbar() {
         var offset = $(".sidparinner").outerWidth();
@@ -82,12 +80,19 @@ $(document).ready(function () {
     }
     getmeals();
     //---------------------------------------------------------------------------------------------------------------------------------------------
+    async function a(id) { 
+    let res = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`)
+    let meal = await res.json();
+    console.log(meal.meals);
+    displayMealDetails(meal.meals);
+    }
     //------------------ function to display the meals----------------------------------
     function DisplayAll_meals(items) {
         closeNavbar();
         var cartona = "";
         for (var i = 0; i < items.length; i++) {
-            cartona += `<div class="col-md-3">
+            console.log(items[i].idMeal);
+            cartona += `<div class="col-md-3" onclick="a('${items[i].idMeal}')">
                 <div class="image-container rounded-2">
                     <img src="${items[i].strMealThumb}" class="w-100" alt="">
                     <div class="overlay position-absolute d-flex align-items-center text-black p-2">
@@ -98,15 +103,6 @@ $(document).ready(function () {
         }
         document.getElementById("demo").innerHTML = cartona;
         image_hover();
-        // Add event listeners to image-containers
-        var imageContainers = document.getElementsByClassName("image-container");
-        for (var j = 0; j < imageContainers.length; j++) {
-            imageContainers[j].addEventListener("click", function () {
-                mekki = false;
-                var mealName = this.querySelector("h3").textContent;
-                searchByName(mealName);
-            });
-        }
     }
     //---------------------------------------------------------------------------------------------------------------------------------------------
     //----------------------- function to search about the meal by name-------------------
@@ -114,13 +110,7 @@ $(document).ready(function () {
         $("#loading").fadeIn(300); // Show the loading section
         let response = await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${name}`)
         response = await response.json()
-        if (mekki == false) {
-            displayMealDetails(response.meals);
-            mekki = true;
-        }
-        else {
-            response.meals ? DisplayAll_meals(response.meals) : DisplayAll_meals([]);
-        }
+        response.meals ? DisplayAll_meals(response.meals) : DisplayAll_meals([]);
         $("#loading").fadeOut(300)
     }
     //--------------------------------------------------------------------------------------------------------------------------------------------------
@@ -131,12 +121,12 @@ $(document).ready(function () {
         var ingredients = ``;
         for (let i = 1; i <= 20; i++) {
             const ingredient = meal[0][`strIngredient${i}`];
-            const measure = meal[0][`strMeasure${i}`];
+            const x = meal[0][`strMeasure${i}`];
             if (ingredient && ingredient.trim().length > 0) {
-                ingredients += `<li class="alert alert-info m-2 p-1">${measure} ${ingredient}</li>`
+                ingredients += `<li class="alert alert-info m-2 p-1">${x} ${ingredient}</li>`
             }
         }
-        let tags = meal[0].strTags?.split(',');
+        let tags = meal.strTags?.split(",")
         // console.log(tags);
         if (!tags) tags = []
         let eachtag = ``
@@ -413,6 +403,7 @@ $(document).ready(function () {
             </div>
         </div>
         <button id="submitBtn" disabled class="btn btn-outline-danger px-2 mt-3">Submit</button>
+        <h3 class="mass"></h3>
     </div>
 </div> `
         submitBtn = document.getElementById("submitBtn")
@@ -548,7 +539,7 @@ $(document).ready(function () {
         document.getElementById("ageInput").value = "";
         document.getElementById("passwordInput").value = "";
         document.getElementById("repasswordInput").value = "";
-
+    
         // Hide the validation alerts
         document.getElementById("nameAlert").classList.replace("d-block", "d-none");
         document.getElementById("emailAlert").classList.replace("d-block", "d-none");
@@ -556,8 +547,12 @@ $(document).ready(function () {
         document.getElementById("ageAlert").classList.replace("d-block", "d-none");
         document.getElementById("passwordAlert").classList.replace("d-block", "d-none");
         document.getElementById("repasswordAlert").classList.replace("d-block", "d-none");
-
+    
         // Disable the submit button again
         submitBtn.setAttribute("disabled", true);
+    
+        // Show the success message
+        var successMessage = document.getElementsByClassName("mass")[0];
+        successMessage.innerHTML = "You have been registered successfully";
     }
-});
+// });
